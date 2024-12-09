@@ -4,10 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({super.key});
+  const AddExpenseScreen({super.key, required this.addNewExpense});
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
+
+  final void Function(ExpenseModel expense) addNewExpense;
 }
 
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
@@ -15,6 +17,37 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   late TextEditingController _expenseAmountController;
   String? selectedDate;
   Category _selectedCategory = Category.food;
+
+  void _saveExpense() {
+    String title = _expenseNameController.text.trim();
+    double? amount = double.tryParse(_expenseAmountController.text.trim());
+    DateTime? date = selectedDate != null
+        ? DateFormat('dd/MM/yyyy').parse(selectedDate!)
+        : null;
+
+    if (title.isEmpty || amount == null || amount < 0 || date == null) {
+      showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                title: const Text('Invalid Input'),
+                content: const Text(
+                    'Please check the input fields to add a new expense.'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                      },
+                      child: const Text('Okay'))
+                ],
+              ));
+      return;
+    }
+
+    ExpenseModel expense = ExpenseModel(
+        title: title, amount: amount, date: date, category: _selectedCategory);
+    widget.addNewExpense(expense);
+    Navigator.pop(context, expense);
+  }
 
   @override
   void initState() {
@@ -135,7 +168,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               ),
               const Spacer(),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: _saveExpense,
                 child: const Text('Save'),
               ),
               const SizedBox(

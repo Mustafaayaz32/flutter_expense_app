@@ -4,6 +4,13 @@ import 'package:uuid/uuid.dart';
 
 enum Category { food, travel, leisure, work }
 
+const categoryIcons = {
+  Category.food: Icons.food_bank,
+  Category.travel: Icons.travel_explore,
+  Category.leisure: Icons.party_mode,
+  Category.work: Icons.work,
+};
+
 class ExpenseModel {
   ExpenseModel(
       {required this.title,
@@ -31,5 +38,30 @@ class ExpenseModel {
     };
 
     return iconMap;
+  }
+}
+
+class ExpenseBucketModel {
+  ExpenseBucketModel({
+    required this.category,
+    required this.expenses,
+  });
+
+  ExpenseBucketModel.forCategory(
+    List<ExpenseModel> allExpenses,
+    this.category,
+  ) : expenses = allExpenses
+            .where((expense) => expense.category == category)
+            .toList();
+
+  final Category category;
+  final List<ExpenseModel> expenses;
+
+  double totalExpenses() {
+    double sum = 0;
+    for (var expense in expenses) {
+      sum += expense.amount;
+    }
+    return sum;
   }
 }
